@@ -116,6 +116,14 @@ plt.imshow(gray_image, cmap=cm.gray)
 kernel_size = 5
 blur_gray_image = gaussian_blur(gray_image, kernel_size)
 plt.imshow(blur_gray_image, cmap=cm.gray)
+#plt.show()
+
+# Define parameters for Canny and run it
+# XXX: Some optimization may be needed for these thresholds
+low_threshold = 50
+high_threshold = 150
+edges_image = canny(blur_gray_image, low_threshold, high_threshold)
+
+# Display the image
+plt.imshow(edges_image, cmap='Greys_r')
 plt.show()
-
-
