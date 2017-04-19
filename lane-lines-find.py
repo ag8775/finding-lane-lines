@@ -107,9 +107,15 @@ plt.imshow(image)  # if you wanted to show a single color channel image called '
 #plt.show()
 
 #grayscale conversion
-image = grayscale(image)
-plt.imshow(image, cmap=cm.gray)
-plt.show()
+gray_image = grayscale(image)
+plt.imshow(gray_image, cmap=cm.gray)
+#plt.show()
 
+#Gaussian smoothing/blurring for suppressing noise and spurious gradients by averaging
+# Note: this step is optional as cv2.Canny() applies a 5x5 Gaussian internally
+kernel_size = 5
+blur_gray_image = gaussian_blur(gray_image, kernel_size)
+plt.imshow(blur_gray_image, cmap=cm.gray)
+plt.show()
 
 
