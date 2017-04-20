@@ -123,7 +123,6 @@ plt.imshow(blur_gray_image, cmap=cm.gray)
 low_threshold = 50
 high_threshold = 150
 edges_image = canny(blur_gray_image, low_threshold, high_threshold)
-
 # Display the image
 plt.imshow(edges_image, cmap='Greys_r')
 #plt.show()
@@ -132,16 +131,41 @@ plt.imshow(edges_image, cmap='Greys_r')
 ysize = image.shape[0]
 xsize = image.shape[1]
 region_select = np.copy(image)
-
 #define a triangle region of interest
 left_bottom = [0, ysize]
 right_bottom = [xsize, ysize]
 apex = [xsize/2, ysize/2]
-
 #Vertices of a triangle
 triangle = np.array([ left_bottom, right_bottom, apex ], np.int32)
-
 #Get the masked region with the everything masked out (hopefully!), except lane lines
 masked_region_image = region_of_interest(edges_image, [triangle])
+# Display the image
 plt.imshow(masked_region_image, cmap='Greys_r')
+#plt.show()
+
+# Define the Hough transform parameters
+# Make a blank the same size as our image to draw on
+rho = 2 # distance resolution in pixels of the Hough grid
+theta = np.pi/180 # angular resolution in radians of the Hough grid
+threshold = 15 # minimum number of votes (intersections in Hough grid cell)
+min_line_len = 5 #minimum number of pixels making up a line
+max_line_gap = 20 # maximum gap in pixels between connectable line segments
+
+line_image = np.copy(image)*0 #creating a blank to draw lines on
+
+# Run Hough on edge detected image
+lines = hough_lines(masked_region_image, rho, theta, threshold, min_line_len, max_line_gap)
+#print(*lines)
+plt.imshow(lines, cmap='Greys_r')
 plt.show()
+
+# Iterate over the output "lines" and draw lines on the blank
+#draw_lines(line_image, lines)
+
+# Create a "color" binary image to combine with line image
+#color_edges = np.dstack((masked_region_image, masked_region_image, masked_region_image)) 
+
+# Draw the lines on the edge image
+#combo = weighted_img(color_edges, line_image)
+#plt.imshow(combo)
+#plt.show()
