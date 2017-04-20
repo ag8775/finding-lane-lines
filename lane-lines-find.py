@@ -126,4 +126,22 @@ edges_image = canny(blur_gray_image, low_threshold, high_threshold)
 
 # Display the image
 plt.imshow(edges_image, cmap='Greys_r')
+#plt.show()
+
+#grab the x and y size and make a copy of the image
+ysize = image.shape[0]
+xsize = image.shape[1]
+region_select = np.copy(image)
+
+#define a triangle region of interest
+left_bottom = [0, ysize]
+right_bottom = [xsize, ysize]
+apex = [xsize/2, ysize/2]
+
+#Vertices of a triangle
+triangle = np.array([ left_bottom, right_bottom, apex ], np.int32)
+
+#Get the masked region with the everything masked out (hopefully!), except lane lines
+masked_region_image = region_of_interest(edges_image, [triangle])
+plt.imshow(masked_region_image, cmap='Greys_r')
 plt.show()
