@@ -50,8 +50,10 @@ def region_of_interest(img, vertices):
     masked_image = cv2.bitwise_and(img, mask)
     return masked_image
 
+def slope(x1, y1, x2, y2):
+    return ((y2 - y1) / (x2 - x1))
 
-def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
+def draw_lines(img, lines, color=[255, 0, 0], thickness=10):
     """
     NOTE: this is the function you might want to use as a starting point once you want to 
     average/extrapolate the line segments you detect to map out the full
@@ -68,9 +70,71 @@ def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
     If you want to make the lines semi-transparent, think about combining
     this function with the weighted_img() function below
     """
+    #for line in lines:
+    #    for x1,y1,x2,y2 in line:
+    #        cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+    x_right = []
+    y_right = []
+    x_left = []
+    y_left = []
     for line in lines:
-        for x1,y1,x2,y2 in line:
-            cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+        for x1, y1, x2, y2 in line:
+            line_slope = slope(x1, y1, x2, y2)
+            if line_slope >= 0:  #Right lane
+                x_right.extend((x1, x2))
+                y_right.extend((y1, y2))
+            else:  #Left lane
+                x_left.extend((x1, x2))
+                y_left.extend((y1, y2))
+    
+    #print('x_right')
+    #print(*x_right)
+    #print('\n')
+
+    #print('y_right')
+    #print(*y_right)
+    #print('\n')
+
+    #print('x_left')
+    #print(*x_left)
+    #print('\n')
+
+    #print('y_left')
+    #print(*y_left)
+    #print('\n')
+
+    x_right_sorted = sorted(x_right)
+    x_right_len = len(x_right)
+    #print(*x_right_sorted)
+
+    x_left_sorted = sorted(x_left)
+    x_left_len = len(x_left)
+    #print(*x_left_sorted)
+
+    y_right_sorted = sorted(y_right)
+    y_right_len = len(y_right)
+
+    y_left_sorted = sorted(y_left)
+    y_left_len = len(y_left)
+
+    fitR = np.polyfit(x_right, y_right, 1)
+    fit_functionR = np.poly1d(fitR)
+    x1R = min(x_right)
+    y1R = int(fit_functionR(x1R))
+    x2R = max(x_right)
+    #x2R = sorted(x_right, reverse=True)[0]
+    y2R = int(fit_functionR(x2R))
+    cv2.line(img, (x1R, y1R), (x2R, y2R), color, thickness)
+
+    fitL = np.polyfit(x_left, y_left, 1)
+    fit_functionL = np.poly1d(fitL)
+    x1L = min(x_left)
+    y1L = int(fit_functionL(x1L))
+    x2L = max(x_left)
+    #x2L = sorted(x_right, reverse=True)[2]
+    y2L = int(fit_functionL(x2L))
+    cv2.line(img, (x1L, y1L), (x2L, y2L), color, thickness)
+
 
 def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     """
@@ -103,28 +167,28 @@ def weighted_img(img, initial_img, α=0.8, β=1., λ=0.):
 # Read in the image and print out some stats
 image = mpimg.imread('test_images/solidWhiteRight.jpg')
 print('This image is:', type(image), 'with dimensions:', image.shape)
-plt.imshow(image)  # if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
+#plt.imshow(image)  # if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
 #plt.show()
 
 #grayscale conversion
 gray_image = grayscale(image)
-plt.imshow(gray_image, cmap=cm.gray)
+#plt.imshow(gray_image, cmap=cm.gray)
 #plt.show()
 
 #Gaussian smoothing/blurring for suppressing noise and spurious gradients by averaging
 # Note: this step is optional as cv2.Canny() applies a 5x5 Gaussian internally
 kernel_size = 5
 blur_gray_image = gaussian_blur(gray_image, kernel_size)
-plt.imshow(blur_gray_image, cmap=cm.gray)
+#plt.imshow(blur_gray_image, cmap=cm.gray)
 #plt.show()
 
 # Define parameters for Canny and run it
 # XXX: Some optimization may be needed for these thresholds
-low_threshold = 50
-high_threshold = 150
+low_threshold = 100
+high_threshold = 350
 edges_image = canny(blur_gray_image, low_threshold, high_threshold)
 # Display the image
-plt.imshow(edges_image, cmap='Greys_r')
+#plt.imshow(edges_image, cmap='Greys_r')
 #plt.show()
 
 #grab the x and y size and make a copy of the image
@@ -135,37 +199,31 @@ region_select = np.copy(image)
 left_bottom = [0, ysize]
 right_bottom = [xsize, ysize]
 apex = [xsize/2, ysize/2]
+#print(*apex)
 #Vertices of a triangle
 triangle = np.array([ left_bottom, right_bottom, apex ], np.int32)
 #Get the masked region with the everything masked out (hopefully!), except lane lines
 masked_region_image = region_of_interest(edges_image, [triangle])
 # Display the image
-plt.imshow(masked_region_image, cmap='Greys_r')
+#plt.imshow(masked_region_image, cmap='Greys_r')
 #plt.show()
 
 # Define the Hough transform parameters
-# Make a blank the same size as our image to draw on
-rho = 2 # distance resolution in pixels of the Hough grid
+rho = 1 # distance resolution in pixels of the Hough grid
 theta = np.pi/180 # angular resolution in radians of the Hough grid
-threshold = 15 # minimum number of votes (intersections in Hough grid cell)
-min_line_len = 5 #minimum number of pixels making up a line
-max_line_gap = 20 # maximum gap in pixels between connectable line segments
-
-line_image = np.copy(image)*0 #creating a blank to draw lines on
+threshold = 20     # minimum number of votes (intersections in Hough grid cell)
+min_line_length = 5 #minimum number of pixels making up a line
+max_line_gap = 20    # maximum gap in pixels between connectable line segments
 
 # Run Hough on edge detected image
-lines = hough_lines(masked_region_image, rho, theta, threshold, min_line_len, max_line_gap)
-#print(*lines)
-plt.imshow(lines, cmap='Greys_r')
-plt.show()
-
-# Iterate over the output "lines" and draw lines on the blank
-#draw_lines(line_image, lines)
+line_image = hough_lines(masked_region_image, rho, theta, threshold, min_line_length, max_line_gap)
 
 # Create a "color" binary image to combine with line image
-#color_edges = np.dstack((masked_region_image, masked_region_image, masked_region_image)) 
+color_edges = np.dstack((edges_image, edges_image, edges_image)) 
 
 # Draw the lines on the edge image
-#combo = weighted_img(color_edges, line_image)
-#plt.imshow(combo)
-#plt.show()
+combo = weighted_img(color_edges, line_image)
+plt.imshow(combo)
+plt.show()
+
+
