@@ -8,6 +8,10 @@ import numpy as np
 import cv2
 import math
 
+# Import everything needed to edit/save/watch video clips
+from moviepy.editor import VideoFileClip
+from IPython.display import HTML
+
 def grayscale(img):
     """Applies the Grayscale transform
     This will return an image with only one color channel
@@ -103,19 +107,19 @@ def draw_lines(img, lines, color=[255, 0, 0], thickness=10):
     #print(*y_left)
     #print('\n')
 
-    x_right_sorted = sorted(x_right)
-    x_right_len = len(x_right)
+    #x_right_sorted = sorted(x_right)
+    #x_right_len = len(x_right)
     #print(*x_right_sorted)
 
-    x_left_sorted = sorted(x_left)
-    x_left_len = len(x_left)
+    #x_left_sorted = sorted(x_left)
+    #x_left_len = len(x_left)
     #print(*x_left_sorted)
 
-    y_right_sorted = sorted(y_right)
-    y_right_len = len(y_right)
+    #y_right_sorted = sorted(y_right)
+    #y_right_len = len(y_right)
 
-    y_left_sorted = sorted(y_left)
-    y_left_len = len(y_left)
+    #y_left_sorted = sorted(y_left)
+    #y_left_len = len(y_left)
 
     fitR = np.polyfit(x_right, y_right, 1)
     fit_functionR = np.poly1d(fitR)
@@ -163,6 +167,70 @@ def weighted_img(img, initial_img, α=0.8, β=1., λ=0.):
     """
     return cv2.addWeighted(initial_img, α, img, β, λ)
 
+def pipeline(image):
+    #your pipeline to find lines should be defined here
+    print('This image is:', type(image), 'with dimensions:', image.shape)
+    #plt.imshow(image)  # if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
+    #plt.show()
+    
+    #grayscale conversion
+    gray_image = grayscale(image)
+    #plt.imshow(gray_image, cmap=cm.gray)
+    #plt.show()
+    
+    #Gaussian smoothing/blurring for suppressing noise and spurious gradients by averaging
+    # Note: this step is optional as cv2.Canny() applies a 5x5 Gaussian internally
+    kernel_size = 5
+    blur_gray_image = gaussian_blur(gray_image, kernel_size)
+    #plt.imshow(blur_gray_image, cmap=cm.gray)
+    #plt.show()
+    # Define parameters for Canny and run it
+    # XXX: Some optimization may be needed for these thresholds
+    low_threshold = 100
+    high_threshold = 200
+    edges_image = canny(blur_gray_image, low_threshold, high_threshold)
+    # Display the image
+    #plt.imshow(edges_image, cmap='Greys_r')
+    #plt.show()
+    
+    #grab the x and y size and make a copy of the image
+    ysize = image.shape[0]
+    xsize = image.shape[1]
+    region_select = np.copy(image)
+    #define a triangle region of interest
+    left_bottom = [0, ysize]
+    right_bottom = [xsize, ysize]
+    apex = [xsize/2, ysize/2]
+    #print(*apex)
+    #Vertices of a triangle
+    triangle = np.array([ left_bottom, right_bottom, apex ], np.int32)
+    #print(*triangle)
+    #Get the masked region with the everything masked out (hopefully!), except lane lines
+    masked_region_image = region_of_interest(edges_image, [triangle])
+    # Display the image
+    #plt.imshow(masked_region_image, cmap='Greys_r')
+    #plt.show()
+
+    # Define the Hough transform parameters
+    rho = 1 # distance resolution in pixels of the Hough grid
+    theta = np.pi/180 # angular resolution in radians of the Hough grid
+    threshold = 20     # minimum number of votes (intersections in Hough grid cell)
+    min_line_length = 5 #minimum number of pixels making up a line
+    max_line_gap = 20    # maximum gap in pixels between connectable line segments
+
+    # Run Hough on edge detected image
+    line_image = hough_lines(masked_region_image, rho, theta, threshold, min_line_length, max_line_gap)
+
+    # Create a "color" binary image to combine with line image
+    color_edges = np.dstack((edges_image, edges_image, edges_image)) 
+
+    # Draw the lines on the edge image
+    combo = weighted_img(color_edges, line_image)
+    #plt.imshow(combo)
+    #plt.show()
+    return combo
+
+#clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4").subclip(0,5)
 
 # Read in the image and print out some stats
 image = mpimg.imread('test_images/solidWhiteRight.jpg')
@@ -171,65 +239,18 @@ image = mpimg.imread('test_images/solidWhiteRight.jpg')
 #image = mpimg.imread('test_images/solidYellowCurve2.jpg')
 #image = mpimg.imread('test_images/solidYellowLeft.jpg')
 #image = mpimg.imread('test_images/whiteCarLaneSwitch.jpg')
-print('This image is:', type(image), 'with dimensions:', image.shape)
-#plt.imshow(image)  # if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
-#plt.show()
 
-#grayscale conversion
-gray_image = grayscale(image)
-#plt.imshow(gray_image, cmap=cm.gray)
-#plt.show()
 
-#Gaussian smoothing/blurring for suppressing noise and spurious gradients by averaging
-# Note: this step is optional as cv2.Canny() applies a 5x5 Gaussian internally
-kernel_size = 5
-blur_gray_image = gaussian_blur(gray_image, kernel_size)
-#plt.imshow(blur_gray_image, cmap=cm.gray)
-#plt.show()
-
-# Define parameters for Canny and run it
-# XXX: Some optimization may be needed for these thresholds
-low_threshold = 100
-high_threshold = 200
-edges_image = canny(blur_gray_image, low_threshold, high_threshold)
-# Display the image
-#plt.imshow(edges_image, cmap='Greys_r')
-#plt.show()
-
-#grab the x and y size and make a copy of the image
-ysize = image.shape[0]
-xsize = image.shape[1]
-region_select = np.copy(image)
-#define a triangle region of interest
-left_bottom = [0, ysize]
-right_bottom = [xsize, ysize]
-apex = [xsize/2, ysize/2]
-#print(*apex)
-#Vertices of a triangle
-triangle = np.array([ left_bottom, right_bottom, apex ], np.int32)
-#print(*triangle)
-#Get the masked region with the everything masked out (hopefully!), except lane lines
-masked_region_image = region_of_interest(edges_image, [triangle])
-# Display the image
-#plt.imshow(masked_region_image, cmap='Greys_r')
-#plt.show()
-
-# Define the Hough transform parameters
-rho = 1 # distance resolution in pixels of the Hough grid
-theta = np.pi/180 # angular resolution in radians of the Hough grid
-threshold = 20     # minimum number of votes (intersections in Hough grid cell)
-min_line_length = 5 #minimum number of pixels making up a line
-max_line_gap = 20    # maximum gap in pixels between connectable line segments
-
-# Run Hough on edge detected image
-line_image = hough_lines(masked_region_image, rho, theta, threshold, min_line_length, max_line_gap)
-
-# Create a "color" binary image to combine with line image
-color_edges = np.dstack((edges_image, edges_image, edges_image)) 
-
-# Draw the lines on the edge image
-combo = weighted_img(color_edges, line_image)
+combo = pipeline(image)
 plt.imshow(combo)
 plt.show()
+
+
+
+
+
+
+
+
 
 
