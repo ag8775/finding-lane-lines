@@ -166,6 +166,11 @@ def weighted_img(img, initial_img, α=0.8, β=1., λ=0.):
 
 # Read in the image and print out some stats
 image = mpimg.imread('test_images/solidWhiteRight.jpg')
+#image = mpimg.imread('test_images/solidWhiteCurve.jpg')
+#image = mpimg.imread('test_images/solidYellowCurve.jpg')
+#image = mpimg.imread('test_images/solidYellowCurve2.jpg')
+#image = mpimg.imread('test_images/solidYellowLeft.jpg')
+#image = mpimg.imread('test_images/whiteCarLaneSwitch.jpg')
 print('This image is:', type(image), 'with dimensions:', image.shape)
 #plt.imshow(image)  # if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
 #plt.show()
@@ -185,7 +190,7 @@ blur_gray_image = gaussian_blur(gray_image, kernel_size)
 # Define parameters for Canny and run it
 # XXX: Some optimization may be needed for these thresholds
 low_threshold = 100
-high_threshold = 350
+high_threshold = 200
 edges_image = canny(blur_gray_image, low_threshold, high_threshold)
 # Display the image
 #plt.imshow(edges_image, cmap='Greys_r')
@@ -202,6 +207,7 @@ apex = [xsize/2, ysize/2]
 #print(*apex)
 #Vertices of a triangle
 triangle = np.array([ left_bottom, right_bottom, apex ], np.int32)
+#print(*triangle)
 #Get the masked region with the everything masked out (hopefully!), except lane lines
 masked_region_image = region_of_interest(edges_image, [triangle])
 # Display the image
