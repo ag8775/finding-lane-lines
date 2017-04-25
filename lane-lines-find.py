@@ -222,28 +222,38 @@ def pipeline(image):
     line_image = hough_lines(masked_region_image, rho, theta, threshold, min_line_length, max_line_gap)
 
     # Create a "color" binary image to combine with line image
-    color_edges = np.dstack((edges_image, edges_image, edges_image)) 
+    #color_edges = np.dstack((edges_image, edges_image, edges_image)) 
 
     # Draw the lines on the edge image
-    combo = weighted_img(color_edges, line_image)
+    combo = weighted_img(line_image, image)
+    #combo = weighted_img(color_edges, line_image)
+
     #plt.imshow(combo)
     #plt.show()
     return combo
 
-#clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4").subclip(0,5)
+def process_image(image):
+    result = pipeline(image)
+    return result
+
+white_output = 'test_videos_result/challenge.mp4'
+clip1 = VideoFileClip("test_videos/challenge.mp4")
+white_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
+white_clip.write_videofile(white_output, audio=False)
+#%time white_clip.write_videofile(white_output, audio=False)
+#get_ipython().magic('time white_clip.write_videofile(white_output, audio=False)')
+
 
 # Read in the image and print out some stats
-image = mpimg.imread('test_images/solidWhiteRight.jpg')
+#image = mpimg.imread('test_images/solidWhiteRight.jpg')
 #image = mpimg.imread('test_images/solidWhiteCurve.jpg')
 #image = mpimg.imread('test_images/solidYellowCurve.jpg')
 #image = mpimg.imread('test_images/solidYellowCurve2.jpg')
 #image = mpimg.imread('test_images/solidYellowLeft.jpg')
 #image = mpimg.imread('test_images/whiteCarLaneSwitch.jpg')
-
-
-combo = pipeline(image)
-plt.imshow(combo)
-plt.show()
+#combo = pipeline(image)
+#plt.imshow(combo)
+#plt.show()
 
 
 
