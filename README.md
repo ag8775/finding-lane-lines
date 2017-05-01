@@ -18,7 +18,17 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/grayscale.jpg "Grayscale"
+[image1]: ./test_images_result/actual_image_read_result.png "Original Image"
+
+[image2]: ./test_images_result/gray_scale_conv_result.png "Grayscale Image"
+
+[image3]: ./test_images_result/gaussian_blurred_result.png "Gaussian Averaging"
+
+[image4]: ./test_images_result/canny_edge_result.png "Canny edge Result"
+
+[image5]: ./test_images_result/masked_image_result.png "Masked Image, Region of Interest"
+
+[image6]: ./test_images_result/hough_result_solidWhiteRight.png "Hough Result"
 
 ---
 
@@ -26,7 +36,14 @@ The goals / steps of this project are the following:
 
 ### 1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
 
-My pipeline consisted of 5 steps. First, I converted the images to grayscale, then I .... 
+My pipeline consisted of 5 steps:
+* Original image to process ![alt text][image1]
+* Conversion to grayscale ![alt text][image2]
+* Gaussian smoothing ![alt text][image3]
+* Canny edge detection ![alt text][image4]
+* Identifying region of interest ![alt text][image5] 
+* Finally, hough result with optimization for identifying left and right lanes, with similar slope gradient ![alt text][image6]
+
 
 In order to draw a single line on the left and right lanes, I modified the draw_lines() function by ...
 
