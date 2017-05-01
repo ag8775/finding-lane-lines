@@ -55,4 +55,4 @@ In order to draw a single line on the left and right lanes, I modified the draw_
 ### 3. Suggest possible improvements to your pipeline
 
 * Context relevant region of interest determination when straight edges turn to curves in the next series of images
-* We could probably support a backtracking logic to identify transition of edges near the car and far from the car and the weigh them accordingly. Essentially the further out, the edges are, the more noise creeps in. 
+* We could probably support a backtracking logic to identify transition of edges near the car and far from the car and then weigh them accordingly. Essentially the further out, the edges are, the more noise creeps in. This needs to be accomodated. Currently the pipeline works on a frame or image by image basis in time, without taking into account the transition between frames for near and far edges for left and right lanes.
