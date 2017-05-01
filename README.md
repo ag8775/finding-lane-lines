@@ -1,8 +1,8 @@
 # **Finding Lane Lines on the Road** 
 
-## Writeup Template
+## Implementation details
 
-### You can use this file as a template for your writeup if you want to submit it as a markdown file. But feel free to use some other method and submit a pdf if you prefer.
+### We use the following standard methods to mark lane lines on the road from the images captured by a camera feed.
 
 ---
 
