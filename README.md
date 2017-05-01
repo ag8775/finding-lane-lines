@@ -2,8 +2,12 @@
 
 ## Implementation details
 
-### We use the following standard methods to mark lane lines on the road from the images captured by a camera feed.
-
+### We use the following standard methods to mark lane lines on the road from the images captured by a camera feed:
+* We transform the image into grayscale
+* Use Gaussian smothing to suppress noise and spurious gradients by averaging
+* We then identify the edges using the Canny Edge detection algorithm. This requires optimization of the low and high thresholds to identify pixels that may form an edge.
+* Determination of the region of interest is in context of the lane in which the car is driving. I have used a triangle with the upper point being the middle of the horizon (or upper horizontal edge).
+*
 ---
 
 **Finding Lane Lines on the Road**
