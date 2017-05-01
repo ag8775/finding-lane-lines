@@ -44,24 +44,15 @@ My pipeline consisted of 5 steps:
 * Identifying region of interest ![alt text][image5] 
 * Finally, hough result with optimization for identifying left and right lanes, with similar slope gradient ![alt text][image6]
 
-
-In order to draw a single line on the left and right lanes, I modified the draw_lines() function by ...
-
-If you'd like to include images to show how the pipeline works, here is how to include an image: 
-
-![alt text][image1]
+In order to draw a single line on the left and right lanes, I modified the draw_lines() function by iterating over lines with +ve and negative slopes. We then extended the right and left edges to incorporate it in the right and left lanes respectively.
 
 
 ### 2. Identify potential shortcomings with your current pipeline
 
-
-One potential shortcoming would be what would happen when ... 
-
-Another shortcoming could be ...
-
+* Curvy lanes require trimming the region of interest. Currently its a triangle that spans across the height of the image. After trimming, we need to identify dimensions of the polygon of interest and ping-ponging between polygon that spans in steps from image after image to a triangle.
+* The draw_lines function needs to be more intelligent. Instead of collating +ve and -ve sloped lines into two buckets for left and right lanes, we need to identify error-margins beyond which lines may not acceptable. This avoids incorporating edges that are actually within the min-max line gap of the hough transform but may not necessarily relate to a lane.
 
 ### 3. Suggest possible improvements to your pipeline
 
-A possible improvement would be to ...
-
-Another potential improvement could be to ...
+* Context relevant region of interest determination when straight edges turn to curves in the next series of images
+* We could probably support a backtracking logic to identify transition of edges near the car and far from the car and the weigh them accordingly. Essentially the further out, the edges are, the more noise creeps in. 
