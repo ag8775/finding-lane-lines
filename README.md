@@ -1,21 +1,20 @@
 # **Finding Lane Lines on the Road** 
 
+The goals / steps of this project are the following:
+* Make a pipeline that finds lane lines on the road
+* Reflect on your work in a written report
+
 ## Implementation details
 
 ### We use the following standard methods to mark lane lines on the road from the images captured by a camera feed:
 * We transform the image into grayscale
 * Use Gaussian smothing to suppress noise and spurious gradients by averaging
 * We then identify the edges using the Canny Edge detection algorithm. This requires optimization of the low and high thresholds to identify pixels that may form an edge.
-* Determination of the region of interest is in context of the lane in which the car is driving. I have used a triangle with the upper point being the middle of the horizon (or upper horizontal edge).
-*
+* Determination of the region of interest is in context of the lane in which the car is driving. We have used a triangle with the upper point being the middle of the horizon (or upper horizontal edge).
+* We the pursue hough lines detection with static optimization of rho, theta, threshold and the min/max line gaps. We also optimize draw_lines to make sure we  curve-fit the lines that meet the same/similar slope for both the right and left lanes.
 ---
 
 **Finding Lane Lines on the Road**
-
-The goals / steps of this project are the following:
-* Make a pipeline that finds lane lines on the road
-* Reflect on your work in a written report
-
 
 [//]: # (Image References)
 
