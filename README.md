@@ -18,17 +18,17 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./test_images_result/actual_image_read_result.png "Original Image"
+[image1]: ./test_images_output/actual_image_read_result.png "Original Image"
 
-[image2]: ./test_images_result/gray_scale_conv_result.png "Grayscale Image"
+[image2]: ./test_images_output/gray_scale_conv_result.png "Grayscale Image"
 
-[image3]: ./test_images_result/gaussian_blurred_result.png "Gaussian Averaging"
+[image3]: ./test_images_output/gaussian_blurred_result.png "Gaussian Averaging"
 
-[image4]: ./test_images_result/canny_edge_result.png "Canny edge Result"
+[image4]: ./test_images_output/canny_edge_result.png "Canny edge Result"
 
-[image5]: ./test_images_result/masked_image_result.png "Masked Image, Region of Interest"
+[image5]: ./test_images_output/masked_image_result.png "Masked Image, Region of Interest"
 
-[image6]: ./test_images_result/hough_result_solidWhiteRight.png "Hough Result"
+[image6]: ./test_images_output/hough_result_solidWhiteRight.png "Hough Result"
 
 ---
 
